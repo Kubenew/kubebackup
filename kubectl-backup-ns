@@ -1,0 +1,23 @@
+//snapshot.storage.k8s.io/v1alpha1
+//snapshot.storage.k8s.io/v1beta1
+
+#!/usr/bin/bash
+namespace=$1
+snapshotclass=$2
+for pvc in$(kubectl get pvc -n $namespace | awk '{print $1}')
+do
+
+cat <<EOF | kubectl apply -f - 
+apiVersion: snapshot.storage.k8s.io/v1alpha1
+kind: VolumeSnapshotClass 
+metadata: 
+   name: ${pvc}-snapshot
+   namespace: ${namespace}
+  spec:
+    snapshotClassName: ${snapsotclass}
+    source:
+    name: ${pvc}
+    kind: PersistentVolumeClaim
+EOF
+
+done
